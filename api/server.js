@@ -18,6 +18,16 @@ app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 
+// Define "/hello" route to render WORLD!
+app.get('/hello', (req, res) => {
+  try {
+    res.send('<script>document.write("WORLD!");</script>');
+  } catch (error) {
+    console.error('Error handling /hello route:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -25,9 +35,7 @@ mongoose.connect(process.env.MONGO_URI, {
   app.listen(process.env.PORT, () => console.log(`🌐 Server running on: ${process.env.PORT}`));
   console.log('🚀 MongoDB Connected Successfully!');
   console.log('🔐 Auth routes available at /api/auth');
-  
-}).catch(err => console.error(err));
-app.get('/hello', (req, res) => {
-  res.send('<script>document.write("WORLD!");</script>');
+}).catch(err => {
+  console.error('Error connecting to MongoDB:', err);
+  process.exit(1); // Exit if MongoDB connection fails
 });
-
