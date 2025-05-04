@@ -12,18 +12,17 @@ Here, we’ll cover everything you need to know, from the project structure to r
 ## 📂 **Project Structure**
 
  
-
-/AUTH-SYSTEM
-├── /api
-│   └── server.js           🖥️  (Main server file with Express app)
-├── /models
-│   └── User.js             🗂️  (User schema with username, email, password)
-├── /routes
-│   └── auth.js             🔑  (Routes for signup, login, authentication)
-├── .env                    🔒  (Environment variables for MongoDB and JWT secret)
-├── .gitignore              🚫  (Excludes node\_modules and sensitive files)
-├── package.json            📦  (NPM dependencies and scripts)
-└── vercel.json              ⚡  (Vercel deployment config for serverless)
+/AUTH-SYSTEM<br>
+├── /api<br>
+│ └── server.js 🖥️ (Main server file with Express app)<br>
+├── /models<br>
+│ └── User.js 🗂️ (User schema with username, email, password)<br>
+├── /routes<br>
+│ └── auth.js 🔑 (Routes for signup, login, authentication)<br>
+├── .env 🔒 (Environment variables for MongoDB and JWT secret)<br>
+├── .gitignore 🚫 (Excludes node_modules and sensitive files)<br>
+├── package.json 📦 (NPM dependencies and scripts)<br>
+└── vercel.json ⚡ (Vercel deployment config for serverless)<br>
 
  
 
