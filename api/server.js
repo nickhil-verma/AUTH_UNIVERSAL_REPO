@@ -27,3 +27,7 @@ mongoose.connect(process.env.MONGO_URI, {
   console.log('🔐 Auth routes available at /api/auth');
   
 }).catch(err => console.error(err));
+app.get('/hello', (req, res) => {
+  res.send('<script>document.write("WORLD!");</script>');
+});
+
