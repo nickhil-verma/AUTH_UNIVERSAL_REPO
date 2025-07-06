@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User.js'); // Ensure correct model import
+const User = require('../models/user'); 
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -53,7 +53,7 @@ router.post('/login', async (req, res) => {
 
     const token = jwt.sign({ id: user._id, username: user.username }, JWT_SECRET, { expiresIn: '1h' });
 
-    res.json({ token, username: user.username });
+    res.json({ token, username: user.username,email:user.email});
   } catch (err) {
     console.error('Error during login:', err); // Log error for debugging
     res.status(500).json({ error: 'Server error' });
