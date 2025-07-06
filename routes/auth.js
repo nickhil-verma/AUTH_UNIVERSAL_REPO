@@ -38,26 +38,45 @@ router.post('/signup', async (req, res) => {
 });
 
 // Login Route
+// Login Route
 router.post('/login', async (req, res) => {
   const { identifier, password } = req.body;
+
+  if (!identifier || !password) {
+    return res.status(400).json({ error: 'Username/email and password are required' });
+  }
 
   try {
     const user = await User.findOne({
       $or: [{ username: identifier }, { email: identifier }]
     });
 
-    if (!user) return res.status(400).json({ error: 'Invalid credentials' });
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
 
-    const token = jwt.sign({ id: user._id, username: user.username }, JWT_SECRET, { expiresIn: '1h' });
+    if (!JWT_SECRET) {
+      console.error('JWT_SECRET is not defined');
+      return res.status(500).json({ error: 'Server configuration error' });
+    }
 
-    res.json({ token, username: user.username,email:user.email});
+    const token = jwt.sign(
+      { id: user._id, username: user.username },
+      JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.json({ token, username: user.username, email: user.email });
   } catch (err) {
-    console.error('Error during login:', err); // Log error for debugging
+    console.error('Error during login:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
+
 
 module.exports = router;
