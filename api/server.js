@@ -8,10 +8,10 @@ const cors = require('cors');
 const authRoutes = require('../routes/auth');
 
 const app = express();
-
+const FRONTEND_URL = process.env.CLIENT_URL || "http://localhost:3000";
 // CORS
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: FRONTEND_URL,
   credentials: true
 }));
 
