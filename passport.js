@@ -6,6 +6,7 @@ const User = require("./models/User");
 require("dotenv").config();
 
 const FRONTEND_URL = process.env.CLIENT_URL || "http://localhost:3000";
+const BACKEND_URL = process.env.SERVER_URL || "http://localhost:5000";
 const JWT_SECRET = process.env.JWT_SECRET;
 
 passport.serializeUser((user, done) => done(null, user.id));
@@ -13,13 +14,13 @@ passport.deserializeUser((id, done) => {
   User.findById(id).then(user => done(null, user));
 });
 
-// Google Strategy
+// ✅ Google Strategy
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/api/auth/google/callback",
+      callbackURL: `${BACKEND_URL}/api/auth/google/callback`,
     },
     async (accessToken, refreshToken, profile, done) => {
       const email = profile.emails?.[0]?.value;
@@ -57,13 +58,13 @@ passport.use(
   )
 );
 
-// GitHub Strategy
+// ✅ GitHub Strategy
 passport.use(
   new GitHubStrategy(
     {
       clientID: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: "/api/auth/github/callback",
+      callbackURL: `${BACKEND_URL}/api/auth/github/callback`,
       scope: ["user:email"],
     },
     async (accessToken, refreshToken, profile, done) => {
@@ -102,7 +103,7 @@ passport.use(
   )
 );
 
-// Callback handler
+// ✅ Final Redirect
 const handleOAuthCallback = (req, res) => {
   const { token, username, email, image } = req.user;
   const redirectUrl = `${FRONTEND_URL}/login?token=${token}&username=${username}&email=${email}&image=${encodeURIComponent(image || '')}`;
