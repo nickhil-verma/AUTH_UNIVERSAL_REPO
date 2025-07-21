@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
 
-const UserSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email:    { type: String, required: true, unique: true },
-  password: { type: String, required: true, minlength: 8 }
+  password: { type: String }, // Can be empty for OAuth
+  image:    { type: String }, // Optional: profile pic
+  isOAuth:  { type: Boolean, default: false } // Optional
 });
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model('User', userSchema);

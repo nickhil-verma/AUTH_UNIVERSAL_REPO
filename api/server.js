@@ -1,44 +1,56 @@
 const express = require('express');
 const mongoose = require('mongoose');
+require('dotenv').config();
+const session = require('express-session');
+const passport = require('passport'); // make sure you import this!
+require('../passport'); // this sets up the passport strategy
 const cors = require('cors');
-const corsOptions = {
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-};
 const authRoutes = require('../routes/auth');
 
 const app = express();
 
-// Allow CORS from any origin
+// CORS
 app.use(cors({
-  origin: '*', // Allows requests from any domain
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow specific HTTP methods
-  allowedHeaders: ['Content-Type', 'Authorization'] // Allow specific headers
+  origin: 'http://localhost:3000',
+  credentials: true
 }));
 
+// JSON Parsing
 app.use(express.json());
 
+// Session Middleware
+app.use(session({
+  secret: process.env.SESSION_SECRET, // 🔐 This is required
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    sameSite: 'lax',
+    secure: false
+  }
+}));
+
+
+// Passport Middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Routes
 app.use('/api/auth', authRoutes);
 
-// Define "/hello" route to render WORLD!
+// Health Check
 app.get('/hello', (req, res) => {
-  try {
-    res.send('<script>document.write("WORLD!");</script>');
-  } catch (error) {
-    console.error('Error handling /hello route:', error);
-    res.status(500).send('Internal Server Error');
-  }
+  res.send('WORLD!');
 });
 
+// MongoDB & Server
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(() => {
-  app.listen(process.env.PORT, () => console.log(`🌐 Server running on: ${process.env.PORT}`));
-  console.log('🚀 MongoDB Connected Successfully!');
-  console.log('🔐 Auth routes available at /api/auth');
+  app.listen(process.env.PORT || 5000, () => {
+    console.log(`🌐 Server running on port ${process.env.PORT}`);
+    console.log('🚀 MongoDB Connected');
+  });
 }).catch(err => {
-  console.error('Error connecting to MongoDB:', err);
-  process.exit(1); // Exit if MongoDB connection fails
+  console.error('❌ MongoDB Connection Error:', err);
 });

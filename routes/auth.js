@@ -1,11 +1,17 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User.js'); // Ensure correct model import
-
-const JWT_SECRET = process.env.JWT_SECRET;
+const User = require('../models/User');
+const passport = require('passport');
+require('dotenv').config();
+const { handleOAuthCallback } = require("../passport"); // Make sure path is correct
 
 const router = express.Router();
+const JWT_SECRET = process.env.JWT_SECRET;
+
+const generateToken = (user) => {
+  return jwt.sign({ id: user._id, username: user.username }, JWT_SECRET, { expiresIn: '1h' });
+};
 
 // Signup Route
 router.post('/signup', async (req, res) => {
@@ -18,12 +24,8 @@ router.post('/signup', async (req, res) => {
   try {
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
-      if (existingUser.email === email) {
-        return res.status(400).json({ error: 'Email already registered' });
-      }
-      if (existingUser.username === username) {
-        return res.status(400).json({ error: 'Username already taken' });
-      }
+      if (existingUser.email === email) return res.status(400).json({ error: 'Email already registered' });
+      if (existingUser.username === username) return res.status(400).json({ error: 'Username already taken' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -32,12 +34,11 @@ router.post('/signup', async (req, res) => {
 
     res.status(201).json({ message: 'User registered successfully' });
   } catch (err) {
-    console.error('Error during signup:', err); // Log error for debugging
+    console.error('Signup Error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
-// Login Route
 // Login Route
 router.post('/login', async (req, res) => {
   const { identifier, password } = req.body;
@@ -47,36 +48,26 @@ router.post('/login', async (req, res) => {
   }
 
   try {
-    const user = await User.findOne({
-      $or: [{ username: identifier }, { email: identifier }]
-    });
-
-    if (!user) {
-      return res.status(400).json({ error: 'Invalid credentials' });
-    }
+    const user = await User.findOne({ $or: [{ username: identifier }, { email: identifier }] });
+    if (!user) return res.status(400).json({ error: 'Invalid credentials' });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ error: 'Invalid credentials' });
-    }
+    if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
 
-    if (!JWT_SECRET) {
-      console.error('JWT_SECRET is not defined');
-      return res.status(500).json({ error: 'Server configuration error' });
-    }
-
-    const token = jwt.sign(
-      { id: user._id, username: user.username },
-      JWT_SECRET,
-      { expiresIn: '1h' }
-    );
-
+    const token = generateToken(user);
     res.json({ token, username: user.username, email: user.email });
   } catch (err) {
-    console.error('Error during login:', err);
+    console.error('Login Error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
+// GitHub OAuth
+router.get("/github", passport.authenticate("github", { scope: ["user:email"] }));
+router.get("/github/callback", passport.authenticate("github", { session: false }), handleOAuthCallback);
+
+// Google OAuth
+router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+router.get("/google/callback", passport.authenticate("google", { session: false }), handleOAuthCallback);
 
 module.exports = router;
