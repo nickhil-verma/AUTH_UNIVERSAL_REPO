@@ -179,13 +179,5 @@ Feel free to fork the repo and create **pull requests** for any new features or 
 ## 📜 **License** 🧑‍⚖️
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-### 📌 **Some Cool Emojis to Celebrate the Project** 🎉
-
-* 🚀 **MongoDB** connected and the server running!
-* 🔒 **JWT** tokens used for secure authentication!
-* 💻 **Local testing** and **Vercel deployment** is a breeze!
-
+ 
  
